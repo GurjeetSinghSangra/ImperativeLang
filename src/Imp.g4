@@ -3,9 +3,10 @@ grammar Imp;
 prog : com EOF ;
 
 com : IF LPAR exp RPAR THEN LBRACE com RBRACE
-        ((ELSE LBRACE com RBRACE) |
-(ELSEIF LPAR exp RPAR LBRACE com RBRACE)* (ELSE LBRACE com RBRACE)?)?   # if
-
+        (ELSE LBRACE com RBRACE)?                                       #if
+    | IF LPAR exp RPAR THEN LBRACE com RBRACE
+        (ELSEIF LPAR exp RPAR LBRACE com RBRACE)*
+        (ELSE LBRACE com RBRACE)?                                       # elseif
     | ID ASSIGN exp                                                     # assign
     | SKIPP                                                             # skip
     | com SEMICOLON com                                                 # seq

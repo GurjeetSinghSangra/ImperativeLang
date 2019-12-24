@@ -1,5 +1,6 @@
 import value.*;
 
+import java.util.List;
 import java.util.Optional;
 
 public class IntImp extends ImpBaseVisitor<Value> {
@@ -29,10 +30,8 @@ public class IntImp extends ImpBaseVisitor<Value> {
             System.err.println();
             System.err.println("@" + ctx.start.getLine() + ":" + ctx.start.getStartIndex());
             System.err.println("> Numerical expression expected");
-
             System.exit(1);
         }
-
         return 0; // dumb return (non-reachable code)
     }
 
@@ -61,9 +60,29 @@ public class IntImp extends ImpBaseVisitor<Value> {
 
     @Override
     public ComValue visitIf(ImpParser.IfContext ctx) {
-        return visitBoolExp(ctx.exp(0))
-                ? visitCom(ctx.com(0))
-                : visitCom(ctx.com(1));
+        if(visitBoolExp(ctx.exp())) {
+            return visitCom(ctx.com(0));
+        } else {
+            if(ctx.getTokens(ImpParser.ELSE).stream().findFirst().isPresent()) {
+                return visitCom(ctx.com(1));
+            }
+        }
+        return ComValue.INSTANCE;
+    }
+
+    //TODO Mi sa che puo essere mergiato con quello sopra
+    @Override
+    public Value visitElseif(ImpParser.ElseifContext ctx) {
+        List<ImpParser.ExpContext> expressions = ctx.exp();
+        for(int i= 0; i < expressions.size(); i++) {
+            if(visitBoolExp(expressions.get(i))) {
+                return visitCom(ctx.com(i));
+            }
+        }
+        if (!ctx.getTokens(ImpParser.ELSE).isEmpty()) {
+            return visitCom(ctx.com(expressions.size()));
+        }
+        return ComValue.INSTANCE;
     }
 
     @Override
@@ -95,33 +114,32 @@ public class IntImp extends ImpBaseVisitor<Value> {
 
     @Override
     public ComValue visitWhile(ImpParser.WhileContext ctx) {
-        if (!visitBoolExp(ctx.exp()))
-            return ComValue.INSTANCE;
-
-        visitCom(ctx.com());
-        return visitCom(ctx);
+        return visitLoop(ctx.exp(), ctx.com(), Optional.empty());
     }
 
     @Override
     public Value visitFor(ImpParser.ForContext ctx) {
-        ImpParser.AssignContext assignContext = new ImpParser.AssignContext(ctx.com(0));
-        visitAssign(assignContext);
-        if(!visitBoolExp(ctx.exp()))
-                return ComValue.INSTANCE;
-        visitCom(ctx.com(2));
-        visitCom(ctx.com(1));
-        return visitCom(ctx);
+        visitAssign((ImpParser.AssignContext) ctx.com(0));
+        return visitLoop(ctx.exp(), ctx.com(2), Optional.of(ctx.com(1)));
     }
 
     @Override
     public ComValue visitDowhile(ImpParser.DowhileContext ctx) {
-        //TODO do it
+        visitCom(ctx.com());
+        if (!visitBoolExp(ctx.exp()))
+            return ComValue.INSTANCE;
         return visitCom(ctx);
     }
 
     @Override
     public Value visitNotdeterm(ImpParser.NotdetermContext ctx) {
-        return super.visitNotdeterm(ctx);
+        int one = (int) Math.round(Math.random());
+        if(one == 0) {
+            visitCom(ctx.com(0));
+        } else {
+            visitCom(ctx.com(1));
+        }
+        return ComValue.INSTANCE;
     }
 
     @Override
