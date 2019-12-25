@@ -60,21 +60,8 @@ public class IntImp extends ImpBaseVisitor<Value> {
 
     @Override
     public ComValue visitIf(ImpParser.IfContext ctx) {
-        if(visitBoolExp(ctx.exp())) {
-            return visitCom(ctx.com(0));
-        } else {
-            if(ctx.getTokens(ImpParser.ELSE).stream().findFirst().isPresent()) {
-                return visitCom(ctx.com(1));
-            }
-        }
-        return ComValue.INSTANCE;
-    }
-
-    //TODO Mi sa che puo essere mergiato con quello sopra
-    @Override
-    public Value visitElseif(ImpParser.ElseifContext ctx) {
         List<ImpParser.ExpContext> expressions = ctx.exp();
-        for(int i= 0; i < expressions.size(); i++) {
+        for(int i=0; i < expressions.size(); i++) {
             if(visitBoolExp(expressions.get(i))) {
                 return visitCom(ctx.com(i));
             }

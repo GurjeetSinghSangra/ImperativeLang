@@ -23,13 +23,6 @@ public interface ImpVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDowhile(ImpParser.DowhileContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code elseif}
-	 * labeled alternative in {@link ImpParser#com}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitElseif(ImpParser.ElseifContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code notdeterm}
 	 * labeled alternative in {@link ImpParser#com}.
 	 * @param ctx the parse tree

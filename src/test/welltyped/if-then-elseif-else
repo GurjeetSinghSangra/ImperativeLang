@@ -3,7 +3,7 @@ i = 999;
 if (i < 10) then {
     out(1)
 }
-elseif (i < 100) {
+elseif (i > 1000) {
     out(2)
 }
 elseif (i < 1000) {
